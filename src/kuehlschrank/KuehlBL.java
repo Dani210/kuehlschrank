@@ -22,7 +22,7 @@ public class KuehlBL extends AbstractListModel<Lebensmittel> {
         state = 0;
         dal = new DAL();
     }
-    
+
     public KuehlBL(ArrayList<Lebensmittel> list) {
         entries = list;
         state = 0;
@@ -42,30 +42,70 @@ public class KuehlBL extends AbstractListModel<Lebensmittel> {
         entries.remove(i);
         this.fireContentsChanged(this, 0, entries.size() - 1);
     }
-    
-    public void sort(){
+
+    public void sort() {
         Comparator c = new Sorter();
         entries.sort(c);
     }
-    
-    public void sortWithQSandComparable(){
-        throw new UnsupportedOperationException();
+
+    public void sortWithQSandComparable() {
         /*
-            todo:
+            TODO:
             QS Implementierung
-            new List
-        */
+         */
+        boolean changed = true;
+        int li, re, pivot, idx;
+
+        Lebensmittel leb1, leb2;
+
+        leb1 = leb2 = null;
+        idx = -1;
+        li = 0;
+        pivot = entries.size() - 1;
+        re = pivot - 1;
+
+        while (changed) {
+            changed = false;
+            
+            for (; re >= 0; re--) {
+                if (entries.get(re).compareTo(entries.get(pivot)) <= 0) {
+                    leb1 = entries.get(re);
+                    break;
+                }
+            }
+            for (; li <= entries.size() - 1; li++) {
+                if (entries.get(li).compareTo(entries.get(pivot)) >= 0) {
+                    leb2 = entries.get(li);
+                    break;
+                }
+            }
+            
+            if(leb1 != null && leb2 != null){
+                if(leb1.compareTo(leb2) <= 0){
+                    idx = entries.indexOf(leb1);
+                    entries.set(entries.indexOf(leb2), leb1);
+                    entries.set(idx, leb2);
+                    changed = true;
+                }
+                else if(leb1.compareTo(leb2) > 0){
+                    entries.set(entries.indexOf(leb2), entries.get(pivot));
+                    entries.set(pivot, leb2);
+                    changed = true;
+                }
+            }
+            
+        }
     }
-    
-    public void write(String file, ArrayList<Lebensmittel> entries, int [] counters) throws FileNotFoundException, IOException{
+
+    public void write(String file, ArrayList<Lebensmittel> entries, int[] counters) throws FileNotFoundException, IOException {
         dal.write(file, entries, counters);
     }
-    
-    public ArrayList<Lebensmittel>[] read(String file) throws FileNotFoundException, IOException{
+
+    public ArrayList<Lebensmittel>[] read(String file) throws FileNotFoundException, IOException {
         return dal.read(file);
     }
-    
-    public ArrayList<Lebensmittel> getEntries(){
+
+    public ArrayList<Lebensmittel> getEntries() {
         return entries;
     }
 
@@ -78,7 +118,7 @@ public class KuehlBL extends AbstractListModel<Lebensmittel> {
         if (state == 1) {
             int i = 0;
             Lebensmittel lm = null;
-            
+
             for (Lebensmittel l : entries) {
 
                 if (l instanceof Apfel) {
