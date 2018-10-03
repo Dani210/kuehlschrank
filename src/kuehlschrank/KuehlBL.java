@@ -3,11 +3,7 @@ package kuehlschrank;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import javax.swing.AbstractListModel;
 
@@ -48,55 +44,118 @@ public class KuehlBL extends AbstractListModel<Lebensmittel> {
         entries.sort(c);
     }
 
-    public void sortWithQSandComparable() {
+    public static ArrayList<Lebensmittel> sortWithQSandComparable(int li,
+            int re, /*int pivot,*/ ArrayList<Lebensmittel> list) {
         /*
             TODO:
             QS Implementierung
          */
-        boolean changed = true;
-        int li, re, pivot, idx;
-
+        
+        /*
+        int idx;
+        boolean change = false;
         Lebensmittel leb1, leb2;
 
         leb1 = leb2 = null;
         idx = -1;
-        li = 0;
-        pivot = entries.size() - 1;
-        re = pivot - 1;
 
-        while (changed) {
-            changed = false;
             
             for (; re >= 0; re--) {
-                if (entries.get(re).compareTo(entries.get(pivot)) <= 0) {
-                    leb1 = entries.get(re);
+                if (list.get(re).compareTo(list.get(pivot)) <= 0) {
+                    leb1 = list.get(re);
                     break;
                 }
             }
-            for (; li <= entries.size() - 1; li++) {
-                if (entries.get(li).compareTo(entries.get(pivot)) >= 0) {
-                    leb2 = entries.get(li);
+            for (; li <= list.size() - 1; li++) {
+                if (list.get(li).compareTo(list.get(pivot)) >= 0) {
+                    leb2 = list.get(li);
                     break;
                 }
             }
             
             if(leb1 != null && leb2 != null){
                 if(leb1.compareTo(leb2) <= 0){
-                    idx = entries.indexOf(leb1);
-                    entries.set(entries.indexOf(leb2), leb1);
-                    entries.set(idx, leb2);
-                    changed = true;
+                    idx = list.indexOf(leb1);
+                    list.set(list.indexOf(leb2), leb1);
+                    list.set(idx, leb2);
+                    change = true;
                 }
                 else if(leb1.compareTo(leb2) > 0){
-                    entries.set(entries.indexOf(leb2), entries.get(pivot));
-                    entries.set(pivot, leb2);
-                    changed = true;
+                    list.set(list.indexOf(leb2), list.get(pivot));
+                    list.set(pivot, leb2);
+                    
+                    change = true;
+                    
+                    if(pivot > 1) pivot--;
+                    sortWithQSandComparable(re, li, pivot, list);
                 }
             }
             
-        }
+            if(!change){
+                if(pivot < list.size()-2){
+                    li = pivot + 1;
+                    re = list.size()-1;
+                }
+                
+                sortWithQSandComparable(li, re, pivot, list);
+            }
+            
+        return list; */
+        
+        if (list == null || list.isEmpty())
+			return list;
+ 
+		if (li >= re)
+			return list;
+ 
+		// pick the pivot
+		int middle = li + (re - li) / 2;
+		Lebensmittel pivot = list.get(middle);
+ 
+		// make left < pivot and right > pivot
+		int i = li, j = re;
+		while (i <= j) {
+			while (list.get(i).compareTo(pivot) < 0) {
+				i++;
+			}
+ 
+			while (list.get(j).compareTo(pivot) > 0) {
+				j--;
+			}
+ 
+			if (i <= j) {
+				Lebensmittel temp = list.get(i);
+				list.set(i, list.get(j));
+                                list.set(j, temp);
+				i++;
+				j--;
+			}
+		}
+ 
+		// recursively sort two sub parts
+		if (li < j)
+                        sortWithQSandComparable(li, j, list);
+ 
+		if (re > i)
+                        sortWithQSandComparable(i, re, list);
+                
+                return list;
     }
 
+    public int searchViaBinary(int menge){
+        ArrayList<Lebensmittel> sorted = 
+                KuehlBL.sortWithQSandComparable(0, this.entries.size()-1, entries);
+        int idx;
+        
+        for(idx = 0; idx < sorted.size(); idx++){
+            if(sorted.get(idx).menge == menge){
+                return idx;
+            }
+        }
+        idx = -1;
+        return idx;
+    }
+    
     public void write(String file, ArrayList<Lebensmittel> entries, int[] counters) throws FileNotFoundException, IOException {
         dal.write(file, entries, counters);
     }
@@ -172,6 +231,10 @@ public class KuehlBL extends AbstractListModel<Lebensmittel> {
         }
 
         return null;
+    }
+
+    public void setList(ArrayList<Lebensmittel> entriesSorted) {
+        entries = entriesSorted;
     }
 
 }

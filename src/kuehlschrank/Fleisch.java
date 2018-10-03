@@ -13,7 +13,7 @@ public class Fleisch extends Lebensmittel {
 
     @Override
     public double berechneKcal() {
-        return this.menge / 10f * KCAL;
+        return this.menge * 10. * KCAL;
     }
 
     @Override

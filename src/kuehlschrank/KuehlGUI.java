@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.swing.filechooser.FileFilter;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -19,14 +18,12 @@ import javax.swing.ListSelectionModel;
 public class KuehlGUI extends javax.swing.JFrame {
 
     private KuehlBL gefrier, kuehl, obst;
-    private DateTimeFormatter dtf;
 
     private JPopupMenu menu;
-    private JButton sort, save, qs;
+    private JButton sort, save, qs, bs;
 
     private DefaultComboBoxModel dcbm;
 
-    private File defaultFile;
     private JFileChooser choose;
 
     public KuehlGUI() {
@@ -65,9 +62,12 @@ public class KuehlGUI extends javax.swing.JFrame {
         sort = new JButton("Sortieren");
         save = new JButton("Speichern");
         qs = new JButton("Mit QS nach Menge sortieren");
+        bs = new JButton("Mit BS nach Eintrag suchen");
+
         menu.add(sort);
         menu.add(save);
         menu.add(qs);
+        menu.add(bs);
         save.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
@@ -132,6 +132,7 @@ public class KuehlGUI extends javax.swing.JFrame {
                             obst.sort();
                             break;
                     }
+                    menu.setVisible(false);
                     listOutput.repaint();
                 }
             }
@@ -148,23 +149,104 @@ public class KuehlGUI extends javax.swing.JFrame {
             public void mouseExited(MouseEvent e) {
             }
         });
-        
+
         qs.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     switch ((String) cbFach.getSelectedItem()) {
                         case "Gefrierfach":
-                            gefrier.sortWithQSandComparable();
+                            gefrier.setList(KuehlBL.sortWithQSandComparable(0, gefrier.getSize() - 1, /*gefrier.getSize()-1,*/ gefrier.getEntries()));
                             break;
                         case "Kühlfach":
-                            kuehl.sortWithQSandComparable();
+                            kuehl.setList(KuehlBL.sortWithQSandComparable(0, kuehl.getSize() - 1, /*kuehl.getSize()-1,*/ kuehl.getEntries()));
                             break;
                         case "Obstfach":
-                            obst.sortWithQSandComparable();
+                            obst.setList(KuehlBL.sortWithQSandComparable(0, obst.getSize() - 1, /*obst.getSize()-1,*/ obst.getEntries()));
                             break;
                     }
+                    menu.setVisible(false);
                     listOutput.repaint();
                 }
+            }
+
+            public void mousePressed(MouseEvent e) {
+            }
+
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            public void mouseExited(MouseEvent e) {
+            }
+        });
+
+        bs.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    switch ((String) cbFach.getSelectedItem()) {
+                        case "Gefrierfach":
+                            String input = JOptionPane.showInputDialog(null,
+                                    "Bitte die gesuchte Menge eingeben",
+                                    "Suche", JOptionPane.PLAIN_MESSAGE,
+                                    null, null, 1).toString();
+                            try {
+                                int menge = Integer.parseInt(input);
+                                int index;
+                                index = gefrier.searchViaBinary(menge);
+                                if (index != -1) {
+                                    listOutput.setSelectedIndex(index);
+                                }
+                            } catch (NumberFormatException nfe) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Format der Menge kann nicht verarbeitet werden"
+                                        + nfe.getCause(), "Fehler",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                            break;
+                        case "Kühlfach":
+                            input = JOptionPane.showInputDialog(null,
+                                    "Bitte die gesuchte Menge eingeben",
+                                    "Suche", JOptionPane.PLAIN_MESSAGE,
+                                    null, null, 1).toString();
+                            try {
+                                int menge = Integer.parseInt(input);
+                                int index;
+                                index = gefrier.searchViaBinary(menge);
+                                if (index != -1) {
+                                    listOutput.setSelectedIndex(index);
+                                }
+                            } catch (NumberFormatException nfe) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Format der Menge kann nicht verarbeitet werden"
+                                        + nfe.getCause(), "Fehler",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                            break;
+                        case "Obstfach":
+                            input = JOptionPane.showInputDialog(null,
+                                    "Bitte die gesuchte Menge eingeben",
+                                    "Suche", JOptionPane.PLAIN_MESSAGE,
+                                    null, null, 1).toString();
+                            try {
+                                int menge = Integer.parseInt(input);
+                                int index;
+                                index = gefrier.searchViaBinary(menge);
+                                if (index != -1) {
+                                    listOutput.setSelectedIndex(index);
+                                }
+                            } catch (NumberFormatException nfe) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Format der Menge kann nicht verarbeitet werden"
+                                        + nfe.getCause(), "Fehler",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                            break;
+                    }
+                }
+                menu.setVisible(false);
+                listOutput.repaint();
             }
 
             public void mousePressed(MouseEvent e) {

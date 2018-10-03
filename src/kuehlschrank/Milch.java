@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Milch extends Lebensmittel {
 
-    private final double KCAL = 64f; //pro 100g
+    private final double KCAL = 64.; //pro 100g
 
     public Milch(LocalDate ablaufdatum, String hersteller, double menge) {
         super(ablaufdatum, hersteller, menge);
@@ -13,7 +13,7 @@ public class Milch extends Lebensmittel {
 
     @Override
     public double berechneKcal() {
-        return this.menge / 10f * KCAL;
+        return this.menge * 10. * KCAL;
     }
 
     @Override
